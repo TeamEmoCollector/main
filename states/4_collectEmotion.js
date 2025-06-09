@@ -5,7 +5,7 @@ import { setFontStyle } from './utils.js';
 let isInitialized = false;
 
 let startMillis = 0; // 시작 시간
-let standardDurationMillis = 3000;
+let standardDurationMillis = 4000;
 
 let result;
 

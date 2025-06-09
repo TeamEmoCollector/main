@@ -10,7 +10,7 @@ let camWidth = 250;
 let camHeight = 180;
 
 let startMillis = 0;
-const situationDurationMillis = 5000;
+const situationDurationMillis = 7000;
 let currentSituation = 0;
 
 let emotionSums = {};      // 각 감정의 점수 합계를 저장할 객체
