@@ -1,12 +1,23 @@
-// ✅ 클라이언트 코드 (예: Report.js)
+// ✅ 개선된 리포트 페이지 (report.js)
 import { State, setState } from '../stateManager.js';
 import { global } from '../globalStore.js';
 import { drawStarMousePointer, setFontStyle } from './utils.js';
 
 let isReportInitialized = false;
 let reportText = "리포트를 생성 중입니다...";
+let emotionPercentages = []; // 각 상황별 감정 퍼센트 저장
 
 const emotionsMap = ["happy", "sad", "angry", "surprised", "neutral", "fearful"];
+
+// 감정 이름을 한글로 변환하는 헬퍼 함수
+const emotionKorean = {
+  happy: "행복",
+  sad: "슬픔",
+  angry: "화남",
+  surprised: "놀람",
+  neutral: "중립",
+  fearful: "두려움"
+};
 
 async function recordEmotionCount(index, emotion) {
   try {
@@ -20,9 +31,17 @@ async function recordEmotionCount(index, emotion) {
   }
 }
 
+// 감정 퍼센트 계산 함수
+function calculateEmotionPercentage(emotionCounts, targetEmotion) {
+  const total = Object.values(emotionCounts).reduce((sum, count) => sum + count, 0);
+  if (total === 0) return 0;
+  return ((emotionCounts[targetEmotion] / total) * 100).toFixed(1);
+}
+
 async function fetchGptReport() {
   console.log("fetchGptReport 호출 시작...");
   reportText = "리포트를 생성 중입니다...";
+  emotionPercentages = []; // 초기화
 
   let promptData = `당신은 사용자의 하루를 간결히 요약하고 긍정적인 피드백과 간단한 감정 관리 팁을 제공합니다. 다음은 사용자가 경험한 상황과 느낀 주요 감정입니다:\n\n`;
 
@@ -35,19 +54,31 @@ async function fetchGptReport() {
     promptData += `- ${situation.title}: ${emotionName}\n`;
 
     // 👉 감정 카운트 저장
-    recordEmotionCount(situationIndex, emotionName);
+    await recordEmotionCount(situationIndex, emotionName);
 
-    // 👉 감정 통계 가져오기 및 프롬프트에 추가
+    // 👉 감정 통계 가져오기 및 퍼센트 계산
     try {
       const statsRes = await fetch(`https://servertest-production-6454.up.railway.app/api/emotion/stats?index=${situationIndex}`);
       const statsData = await statsRes.json();
+      
       if (statsData && statsData.emotionCounts) {
+        const percentage = calculateEmotionPercentage(statsData.emotionCounts, emotionName);
+        
+        // 퍼센트 정보 저장
+        emotionPercentages.push({
+          situationTitle: situation.title,
+          emotion: emotionName,
+          emotionKr: emotionKorean[emotionName],
+          percentage: percentage
+        });
+        
+        // GPT 프롬프트에도 통계 추가
         const counts = statsData.emotionCounts;
         promptData += `  (${situation.title}에 대한 감정 통계: `;
         for (const emotion of emotionsMap) {
           promptData += `${emotion}: ${counts[emotion] ?? 0}, `;
         }
-        promptData = promptData.slice(0, -2); // 마지막 콤마 제거
+        promptData = promptData.slice(0, -2);
         promptData += `)\n`;
       }
     } catch (err) {
@@ -90,14 +121,39 @@ export function Report() {
   setFontStyle(700, 48);
   text("리포트", global.centerX, global.centerY - 280);
 
+  // GPT 리포트 텍스트 표시
   setFontStyle(500, 24);
   const lines = wrapText(reportText, 35);
-  let yPos = global.centerY - 100;
+  let yPos = global.centerY - 150;
   const lineHeight = 30;
 
   for (let line of lines) {
     text(line, global.centerX, yPos);
     yPos += lineHeight;
+  }
+
+  // 감정 퍼센트 정보 표시
+  if (emotionPercentages.length > 0) {
+    yPos += 20; // 여백 추가
+    
+    setFontStyle(700, 28);
+    text("📊 감정 통계 분석", global.centerX, yPos);
+    yPos += 40;
+    
+    setFontStyle(400, 20);
+    for (let data of emotionPercentages) {
+      const statText = `"${data.situationTitle.substring(0, 15)}..."에서`;
+      text(statText, global.centerX, yPos);
+      yPos += 25;
+      
+      setFontStyle(600, 22);
+      fill(255, 220, 100); // 노란색으로 강조
+      text(`${data.emotionKr} 감정은 전체의 ${data.percentage}%입니다`, global.centerX, yPos);
+      fill(255); // 다시 흰색으로
+      yPos += 35;
+      
+      setFontStyle(400, 20);
+    }
   }
 
   setFontStyle(500, 20);
