@@ -69,7 +69,7 @@ export function Credits() {
   pop();
 
   // 터치하여 종료
-  fill(255, 255, 255, creditAlpha * 0.5 + sin(frameCount * 0.05) * 0.3);
+  fill(255, 255, 255, creditAlpha * 0.7);
   setFontStyle(400, 20);
   text("터치하여 종료", global.centerX, height - 20);
 }
