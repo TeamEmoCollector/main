@@ -1,7 +1,5 @@
-import { State, currentState, setState } from '../stateManager.js';
 import { global } from '../globalStore.js';
-import { drawStarMousePointer, setFontStyle } from './utils.js';
-import { dropShadowStart, dropShadowEnd } from './utils.js';
+import { setFontStyle } from './utils.js';
 
 export function Credits() {
   imageMode(CORNER);

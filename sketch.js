@@ -3,12 +3,12 @@
 // ----------------------------------------------------------------
 import { State, currentState } from './stateManager.js';
 import { global } from './globalStore.js';
-import { Home, StartContent } from './states/home.js';
-import { ScanFace} from './states/scanFace.js';
-import { Situation} from './states/situation.js';
-import { CollectEmotion} from './states/collectEmotion.js';
-import { Report, pressedReport } from './states/report.js';
-import { Credits, pressedCredits } from './states/credits.js';
+import { Home, StartContent } from './states/1_home.js';
+import { ScanFace} from './states/2_scanFace.js';
+import { Situation} from './states/3_situation.js';
+import { CollectEmotion} from './states/4_collectEmotion.js';
+import { Report, pressedReport } from './states/5_report.js';
+import { Credits, pressedCredits } from './states/6_credits.js';
 
 
 let bgCanvas;
@@ -47,7 +47,7 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(1280, 720);
   global.centerX = width / 2;
   global.centerY = height / 2;
 

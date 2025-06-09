@@ -1,4 +1,4 @@
-import { State, currentState, setState } from '../stateManager.js';
+import { State, setState } from '../stateManager.js';
 import { global } from '../globalStore.js';
 import { drawStarMousePointer, setFontStyle } from './utils.js';
 

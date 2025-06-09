@@ -1,4 +1,4 @@
-import { State, currentState, setState } from '../stateManager.js';
+import { State, setState } from '../stateManager.js';
 import { global } from '../globalStore.js'; // global 객체를 가져옵니다.
 import { drawStarMousePointer, setFontStyle } from './utils.js';
 
@@ -59,7 +59,7 @@ export function Situation() {
     setFontStyle(700, 28);
     text(
         `${currentDominantEmotion.name} (인식률: ${Math.round(currentDominantEmotion.score * 100)}%)`,
-        global.centerX + 350,
+        global.centerX + 330,
         global.centerY - 100
     );
     

@@ -1,7 +1,7 @@
 // ✅ 개선된 리포트 페이지 (report.js)
 import { State, setState } from '../stateManager.js';
 import { global } from '../globalStore.js';
-import { drawStarMousePointer, setFontStyle } from './utils.js';
+import { setFontStyle } from './utils.js';
 
 let isReportInitialized = false;
 let reportText = "리포트를 생성 중입니다...";
