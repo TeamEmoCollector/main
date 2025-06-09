@@ -25,6 +25,9 @@ export function Home() {
   fill(255);
   textAlign(RIGHT, CENTER);
   setFontStyle(500, 32);
+  // AI 사용
+  // breathTerm과 frameCount를 이용하여 시간에 따른 투명도 변화
+  // 부드러운 애니메이션을 구현하는 것이 어려워서 AI의 도움을 받았습니다.
   fill(255, 255, 255, abs((frameCount%(breathTerm*2)-breathTerm)/breathTerm*2*255));
   text("터치하여 시작하세요", width - 30, height - 50);
 

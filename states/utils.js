@@ -4,6 +4,9 @@ export function setFontStyle(weight, size) {
   drawingContext.font = `${weight} ${size}px 'Pretendard Variable'`;
 }
 
+// AI 사용
+// p5.js의 drawingContext를 사용하여 drop shadow 효과 적용 함수
+// p5.js에서 공식적으로 제공하는 drop shadow 기능을 찾아보기 어려워 AI에게 요청해봤습니다.
 export function dropShadowStart(blur, glowColor) {
   drawingContext.save();
   drawingContext.shadowOffsetX = 0;
@@ -12,6 +15,9 @@ export function dropShadowStart(blur, glowColor) {
   drawingContext.shadowColor = glowColor;
 }
 
+// AI 사용
+// p5.js의 drawingContext를 사용하여 drop shadow 효과 제거 함수
+// 이유는 위와 같습니다.
 export function dropShadowEnd() {
   drawingContext.restore();
 }
@@ -27,22 +33,4 @@ export function drawStarMousePointer() {
   image(global.emoImg.happy, 0, 0, 120, 120);
   dropShadowEnd();
   pop();
-}
-
-export function fadeIn() {
-  const fadeInDuration = 1000; // 1초
-  const fadeInStep = 255 / (fadeInDuration / 16); // 16ms마다 증가
-  let currentAlpha = 0;
-
-  function draw() {
-    if (currentAlpha < 255) {
-      currentAlpha += fadeInStep;
-      fill(255, currentAlpha);
-      rect(0, 0, width, height);
-    } else {
-      noLoop(); // 애니메이션이 끝나면 루프 중지
-    }
-  }
-
-  return draw;
 }

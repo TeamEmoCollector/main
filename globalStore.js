@@ -2,6 +2,7 @@ export const global = {
   capture: null,
   faceapi: null,
 
+  // ml5로 인식하는 정보
   detections:[],
 
   centerX: 0,
@@ -14,12 +15,8 @@ export const global = {
   stars: [],
   lightImg: null,
 
+  // 감정 이미지 저장
   emoImg: {
-    happy: 0, sad: 0, angry: 0,
-    surprised: 0, neutral: 0, fearful: 0
-  },
-
-  emoGrayImg: {
     happy: 0, sad: 0, angry: 0,
     surprised: 0, neutral: 0, fearful: 0
   },
@@ -57,8 +54,8 @@ export const global = {
 
   emotions: ["happy", "sad", "angry", "surprised", "neutral", "fearful"],
 
-  currentSituationIndex: 0,
-  selectedSituationIndices: [],  // 랜덤으로 선택된 상황들의 인덱스
+  currentSituationIndex: 0,       //현재 인덱스
+  selectedSituationIndices: [],   // 랜덤으로 선택된 상황들의 인덱스
 
   // 각 상황에서 사용자가 가장 많이 보인 감정 인덱스 저장
   dominantEmotionIndicesPerSituation: [],

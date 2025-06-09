@@ -6,9 +6,9 @@ let isModelLoaded = false;       // ml5.js faceApi 모델이 성공적으로 로
 let isSetupInProgress = false;   // setupFaceApi 함수가 호출되어 모델 로딩 과정이 진행 중인지 여부를 나타냅니다. true면 진행 중.
 
 const radius = 190; 
-let inCircleStartMillis = 0; // 얼굴이 원 안에 정확히 들어오기 시작한 시간(밀리초 단위)을 저장합니다.
-let inCirCleCumulatedMillis = 0; // 얼굴이 원 안에 머무른 누적 시간을 저장합니다.
-const inCircleDuration = 3000; // 얼굴이 원 안에 3000밀리초(3초) 동안 머무르면 다음 상태로 넘어갑니다.
+let inCircleStartMillis = 0;     // 얼굴이 원 안에 정확히 들어오기 시작한 시간
+let inCirCleCumulatedMillis = 0; // 얼굴이 원 안에 머무른 누적 시간
+const inCircleDuration = 3000;   // 기준: 3초 이상
 
 
 export function ScanFace() {
@@ -22,6 +22,9 @@ export function ScanFace() {
       translate(global.centerX, global.centerY);
       scale(-1, 1);
 
+      // AI 사용
+      // 디자인을 위해 직사각형의 웹캠 캡처 이미지를 꼭지점이 둥근 직사각형으로 만드는 코드
+      // 둥근 직사각형 모양으로 클리핑 하는 과정을 구현하기 어렵고, 복잡할 것이라 생각하여 AI의 도움을 받았습니다.
       const w = 640, h = 480, r = 40;
 
       drawingContext.save();
@@ -141,6 +144,9 @@ function gotFaces(error, result) {
   }, 200); // 200밀리초(0.2초) 후에 실행합니다. (초당 약 5프레임 감지)
 }
 
+// AI 사용
+// 얼굴의 위치와 크기를 기준으로 인식 상태를 판단하는 함수
+// 얼굴이 '원 안에' 들어왔는지 판단하는 부분을 어떻게 구현하는 것이 좋을 지 고민되어 AI의 도움을 받았습니다.
 function getFaceDetectionStatus() {
   if (global.detections.length === 0) {
     return "noFace";

@@ -1,15 +1,12 @@
-// ✅ 개선된 리포트 페이지 (report.js)
 import { State, setState } from '../stateManager.js';
 import { global } from '../globalStore.js';
 import { setFontStyle } from './utils.js';
 
 let isReportInitialized = false;
-let reportText = "리포트를 생성 중입니다...";
+let reportText = "리포트를 생성 중입니다..."; // 리포트 텍스트
 let emotionPercentages = []; // 각 상황별 감정 퍼센트 저장
 
-const emotionsMap = ["happy", "sad", "angry", "surprised", "neutral", "fearful"];
-
-// 감정 이름을 한글로 변환하는 헬퍼
+// 감정 이름을 한글로 변환
 const emotionKorean = {
   happy: "행복",
   sad: "슬픔",
@@ -19,7 +16,9 @@ const emotionKorean = {
   fearful: "두려움"
 };
 
+// AI 사용
 // 감정 결과 전송
+// AI 사용해서 서버에 상황이랑 느낀 감정 저장 요청함.
 async function SubmitExpressionResult(index, emotion) {
   try {
     await fetch("https://servertest-production-6454.up.railway.app/api/emotion/increment", {
@@ -32,7 +31,10 @@ async function SubmitExpressionResult(index, emotion) {
   }
 }
 
+// AI 사용
 // 감정 통계 가져오기
+// AI 사용해서 서버에 상황 인덱스를 보내서 json 형태로 통계 가져와 달라고 
+// 부탁했습니다.
 async function GetEmotionStats(situationIndex) {
   try {
     const res = await fetch(
@@ -47,14 +49,27 @@ async function GetEmotionStats(situationIndex) {
 }
 
 // 감정 퍼센트 계산
-function CalculateEmotionRates(counts, emo) {
-  const total = Object.values(counts).reduce((s, c) => s + c, 0);
-  return total ? ((counts[emo] / total) * 100).toFixed(1) : 0;
+// emo : 느낀 감정, counts : 전체 감정 갯수들 저장
+function CalculateEmotionRates(emo, counts) {
+  // 전체 합 구하기
+  let total = 0;
+  for (const key in counts) {
+    total += counts[key];
+  }
+
+  // 3) 비율 계산 (숫자로)
+  const raw = (counts[emo] / total) * 100;
+
+  // 4) 소수점 첫째 자리까지 반올림한 숫자로 반환
+  return Math.round(raw * 10) / 10;
 }
 
+// AI 사용
 // GPT 프롬프트 생성·전송 및 결과 저장
+// 어떤 형식으로 프롬프트를 작성하면 좋을지 물어봤으며
+// OPEN API KEY가 클라이언트에 있으면 위험하기 때문에 
+// AI를 사용해서 서버도 배포하였습니다
 async function GeneratePersonalizedComment() {
-  reportText = "리포트를 생성 중입니다...";
   emotionPercentages = [];
 
   let promptData = `당신은 사용자의 하루를 간결히 요약하고 긍정적인 피드백과 간단한 감정 관리 팁을 제공합니다. 다음은 사용자가 경험한 상황과 느낀 주요 감정입니다:\n\n`;
@@ -62,14 +77,15 @@ async function GeneratePersonalizedComment() {
   for (let i = 0; i < 3; i++) {
     const idx = global.selectedSituationIndices[i];
     const sit = global.situations[idx];
-    const emoName = emotionsMap[global.dominantEmotionIndicesPerSituation[i]];
+    const emoName = global.emotions[global.dominantEmotionIndicesPerSituation[i]];
 
     promptData += `- ${sit.title}: ${emoName}\n`;
     await SubmitExpressionResult(idx, emoName);
 
     const counts = await GetEmotionStats(idx);
     if (counts) {
-      const pct = CalculateEmotionRates(counts, emoName);
+      const pct = CalculateEmotionRates(emoName, counts);
+      
       emotionPercentages.push({
         situationTitle: sit.title,
         emotion: emoName,
@@ -77,7 +93,7 @@ async function GeneratePersonalizedComment() {
         percentage: pct
       });
       promptData += `  (${sit.title} 감정통계: `;
-      emotionsMap.forEach(e => {
+      global.emotions.forEach(e => {
         promptData += `${e}:${counts[e] ?? 0}, `;
       });
       promptData = promptData.slice(0, -2) + `)\n`;
@@ -101,6 +117,7 @@ async function GeneratePersonalizedComment() {
 }
 
 // 화면에 최종 결과 렌더링
+// api들을 사용해서 최종적으로 출력하는 부분
 function RenderFinalComment() {
   imageMode(CORNER);
   image(global.grdImg, 0, 0, width, height);
@@ -111,6 +128,7 @@ function RenderFinalComment() {
 
   setFontStyle(500, 24);
   const lines = wrapText(reportText, 35);
+
   let y = global.centerY - 150;
   lines.forEach(line => {
     text(line, global.centerX, y);
@@ -138,7 +156,7 @@ function RenderFinalComment() {
   text("터치하여 크레딧 보기", global.centerX, height - 50);
 }
 
-//✅ Report 컴포넌트
+// 처음 들어오면 프롬프트 요청
 export function Report() {
   if (!isReportInitialized) {
     GeneratePersonalizedComment();
@@ -147,20 +165,16 @@ export function Report() {
   RenderFinalComment();
 }
 
+// str을 maxChars 마다 줄 바꿔주는 함수
 function wrapText(str, maxChars) {
   const lines = [];
-  let cur = '';
-  str.split(' ').forEach(w => {
-    if ((cur + w).length > maxChars) {
-      lines.push(cur);
-      cur = w + ' ';
-    } else {
-      cur += w + ' ';
-    }
-  });
-  if (cur) lines.push(cur.trim());
+  for (let i = 0; i < str.length; i += maxChars) {
+    // 문자열을 maxChars만큼 잘라서 붙이고 lines에 넣기
+    lines.push(str.slice(i, i + maxChars));
+  }
   return lines;
 }
+
 
 
 export function pressedReport() {

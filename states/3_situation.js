@@ -1,8 +1,9 @@
 import { State, setState } from '../stateManager.js';
-import { global } from '../globalStore.js'; // global 객체를 가져옵니다.
+import { global } from '../globalStore.js';
 import { drawStarMousePointer, setFontStyle } from './utils.js';
 
 let emotions = ["happy", "sad", "angry", "surprised", "neutral", "fearful"];
+
 let isSituationInitialized = false; // Situation 상태의 자체 초기화 플래그
 
 let camWidth = 250;
@@ -48,8 +49,10 @@ export function Situation() {
   imageMode(CENTER);
   image(currentSituation.img, global.centerX, global.centerY - 20, 800, 500);
 
-
+  // AI 사용
   // 실시간 표정 분석 결과 표시 및 감정 데이터 누적
+  // 실시간으로 표정이 어떤 감정을 표출하고 있는지 시각적으로 확인했으면 좋을거 같아
+  // AI에게 인식률을 표현하게 부탁했습니다.
   textAlign(LEFT, CENTER);
   if (global.detections && global.detections.length > 0 && global.detections[0].expressions) {
     const currentExpressions = global.detections[0].expressions;
@@ -77,8 +80,10 @@ export function Situation() {
   text(`${(situationDurationMillis / 1000) - floor((millis() - startMillis) / 1000)}초`, width - 80, height - 50);
 
   
-
-  if (global.capture) { // 전역 웹캠 캡처(global.capture) 객체가 있는지 확인
+  // AI 사용
+  // 캠을 보여주는 곳
+  // 사각진 것이 아닌 둥근 사각형으로 출력하고 싶어 AI에게 부탁했습니다.
+  if (global.capture) { 
     push();
     imageMode(CENTER);
     translate(width - (camWidth / 2) - 40, (camHeight / 2) + 40);
@@ -105,7 +110,6 @@ export function Situation() {
 
     image(global.capture, 0, 0, w, h);
     drawingContext.restore();
-    drawFaceAlignedRect();
     pop();
   }
 
@@ -116,26 +120,9 @@ export function Situation() {
   drawStarMousePointer();
 }
 
-function drawFaceAlignedRect() {
-  if (global.detections && global.detections.length > 0) {
-    const box = global.detections[0].alignedRect._box;
-
-    const faceW = box._width;
-    const faceH = box._height;
-
-    const faceCenterX = box._x + faceW / 2 - global.capture.width / 2;
-    const faceCenterY = box._y + faceH / 2 - global.capture.height / 2;
-
-    stroke(0, 255, 50, 150);
-    strokeWeight(2);
-    noFill();
-    rectMode(CENTER);
-    rect(faceCenterX, faceCenterY, faceW, faceH);
-  }
-}
 
 function moveToCollectEmotion() {
-  const overallDominantResult = CaptureExpression(emotionSums, emotionCounts, emotions);
+  const overallDominantResult = CaptureExpression(emotionSums, emotionCounts, emotions); //최종 감정 1개 반환
   const dominantEmotionName = overallDominantResult.name;
   const dominantEmotionScore = overallDominantResult.score;
 
@@ -157,7 +144,9 @@ function moveToCollectEmotion() {
   setState(State.CollectEmotion);
 }
 
+
 // 주어진 표정 객체에서 가장 높은 점수를 가진 감정을 찾는 함수
+// 감정들을 돌며 가장 큰 점수를 가진 감정의 이름과 점수 반환
 function getDominantEmotion(expressions) {
     let dominantEmotionName = "neutral"; // 기본값
     let maxScore = 0;
@@ -173,13 +162,16 @@ function getDominantEmotion(expressions) {
     return { name: dominantEmotionName, score: maxScore };
 }
 
-// 누적된 데이터를 바탕으로 전체적인 주요 감정 결정 (neutral 보정)
+// AI 사용
+// 누적된 데이터를 바탕으로 전체적인 주요 감정 결정
+// AI한테 무표정이 너무 잘 나와서 다른 감정이 조금이라도 느껴지면
+// 그 감정으로 선택할 수 있게 보정해달라고 요청했습니다.
 function CaptureExpression(sums, counts, emotionsArray, threshold = 0.05) {
   let highestNonNeutralAvgScore = 0;
   let dominantNonNeutralEmotion = null; // 가장 높은 비-neutral 감정 이름
   let nonNeutralDetected = false;      // 비-neutral 감정이 기준치 이상으로 감지되었는지 여부
 
-  // 1. 각 감정의 평균 점수 계산 및 비-neutral 감정 중 최고점 찾기
+  // 각 감정의 평균 점수 계산 및 비-neutral 감정 중 최고점 찾기
   for (const emotion of emotionsArray) {
     if (counts[emotion] && counts[emotion] > 0) {
       const averageScore = sums[emotion] / counts[emotion];
@@ -195,8 +187,7 @@ function CaptureExpression(sums, counts, emotionsArray, threshold = 0.05) {
       }
     }
   }
-
-  // 2. 최종 주요 감정 결정
+  // 최종 주요 감정 결정
   if (nonNeutralDetected && dominantNonNeutralEmotion) {
     // 기준치 이상의 비-neutral 감정이 하나라도 있었다면, 그 중 가장 높은 평균을 가진 감정 반환
     return { name: dominantNonNeutralEmotion, score: highestNonNeutralAvgScore };
