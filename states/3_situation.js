@@ -16,133 +16,133 @@ let currentSituation = 0;
 let emotionSums = {};      // 각 감정의 점수 합계를 저장할 객체
 let emotionCounts = {};    // 각 감정이 몇 번 감지되었는지 횟수를 저장할 객체
 
-export function Situation() {
-  if (!isSituationInitialized) {
-    isSituationInitialized = true;
-    currentSituation = global.situations[global.selectedSituationIndices[global.currentSituationIndex]];
-    startMillis = millis();
-    global.detections = [];
-   
-    for (const emotion of emotions) {
-      emotionSums[emotion] = 0;
-      emotionCounts[emotion] = 0;
-    }
-  }
-
-  imageMode(CORNER);
-  image(global.grdImg, 0, 0, width, height);
-
-
-  noStroke();
-  fill(255);
-  textAlign(CENTER, CENTER);
-
-  setFontStyle(700, 48);
-  text(`상황 ${global.currentSituationIndex + 1}/3`, global.centerX - 700, global.centerY - 400);
-
-  setFontStyle(500, 28);
-  text(currentSituation.title, global.centerX, global.centerY + 300);
-
-  setFontStyle(500, 24);
-  text("이때, 느껴지는 당신의 감정을 표정으로 나타내주세요.", global.centerX, global.centerY + 340);
-
-  imageMode(CENTER);
-  image(currentSituation.img, global.centerX, global.centerY - 20, 800, 500);
-
-  // AI 사용
-  // 실시간 표정 분석 결과 표시 및 감정 데이터 누적
-  // 실시간으로 표정이 어떤 감정을 표출하고 있는지 시각적으로 확인했으면 좋을거 같아
-  // AI에게 인식률을 표현하게 부탁했습니다.
-  textAlign(LEFT, CENTER);
-  if (global.detections && global.detections.length > 0 && global.detections[0].expressions) {
-    const currentExpressions = global.detections[0].expressions;
+  export function Situation() {
+    if (!isSituationInitialized) {
+      isSituationInitialized = true;
+      currentSituation = global.situations[global.selectedSituationIndices[global.currentSituationIndex]];
+      startMillis = millis();
+      global.detections = [];
     
-    // 실시간 UI 표시용 주요 감정
-    const currentDominantEmotion = getDominantEmotion(currentExpressions);
-    setFontStyle(700, 28);
-    text(
-        `${currentDominantEmotion.name} (인식률: ${Math.round(currentDominantEmotion.score * 100)}%)`,
-        global.centerX + 520,
-        global.centerY - 180
-    );
-    
-    // 감정 데이터 누적
-    for (const emotion of emotions) {
-      if (currentExpressions[emotion] !== undefined) {
-        emotionSums[emotion] += currentExpressions[emotion];
-        emotionCounts[emotion]++;
+      for (const emotion of emotions) {
+        emotionSums[emotion] = 0;
+        emotionCounts[emotion] = 0;
       }
     }
-  }
 
-  textAlign(RIGHT, CENTER);
-  setFontStyle(700, 28);
-  text(`${(situationDurationMillis / 1000) - floor((millis() - startMillis) / 1000)}초`, width - 80, height - 50);
+    imageMode(CORNER);
+    image(global.grdImg, 0, 0, width, height);
 
-  
-  // AI 사용
-  // 캠을 보여주는 곳
-  // 사각진 것이 아닌 둥근 사각형으로 출력하고 싶어 AI에게 부탁했습니다.
-  if (global.capture) { 
-    push();
+
+    noStroke();
+    fill(255);
+    textAlign(CENTER, CENTER);
+
+    setFontStyle(700, 48);
+    text(`상황 ${global.currentSituationIndex + 1}/3`, global.centerX - 700, global.centerY - 400);
+
+    setFontStyle(500, 28);
+    text(currentSituation.title, global.centerX, global.centerY + 300);
+
+    setFontStyle(500, 24);
+    text("이때, 느껴지는 당신의 감정을 표정으로 나타내주세요.", global.centerX, global.centerY + 340);
+
     imageMode(CENTER);
-    translate(width - (camWidth / 2) - 40, (camHeight / 2) + 40);
-    scale(-1, 1);
+    image(currentSituation.img, global.centerX, global.centerY - 20, 800, 500);
 
-    const w = camWidth;
-    const h = camHeight;
-    const r = 20;
+    // AI 사용
+    // 실시간 표정 분석 결과 표시 및 감정 데이터 누적
+    // 실시간으로 표정이 어떤 감정을 표출하고 있는지 시각적으로 확인했으면 좋을거 같아
+    // AI에게 인식률을 표현하게 부탁했습니다.
+    textAlign(LEFT, CENTER);
+    if (global.detections && global.detections.length > 0 && global.detections[0].expressions) {
+      const currentExpressions = global.detections[0].expressions;
+      
+      // 실시간 UI 표시용 주요 감정
+      const currentDominantEmotion = getDominantEmotion(currentExpressions);
+      setFontStyle(700, 28);
+      text(
+          `${currentDominantEmotion.name} (인식률: ${Math.round(currentDominantEmotion.score * 100)}%)`,
+          global.centerX + 520,
+          global.centerY - 180
+      );
+      
+      // 감정 데이터 누적
+      for (const emotion of emotions) {
+        if (currentExpressions[emotion] !== undefined) {
+          emotionSums[emotion] += currentExpressions[emotion];
+          emotionCounts[emotion]++;
+        }
+      }
+    }
 
-    drawingContext.save();
-    drawingContext.beginPath();
-    const ctx = drawingContext;
-    ctx.moveTo(-w / 2 + r, -h / 2);
-    ctx.lineTo(w / 2 - r, -h / 2);
-    ctx.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + r);
-    ctx.lineTo(w / 2, h / 2 - r);
-    ctx.quadraticCurveTo(w / 2, h / 2, w / 2 - r, h / 2);
-    ctx.lineTo(-w / 2 + r, h / 2);
-    ctx.quadraticCurveTo(-w / 2, h / 2, -w / 2, h / 2 - r);
-    ctx.lineTo(-w / 2, -h / 2 + r);
-    ctx.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2);
-    ctx.closePath();
-    drawingContext.clip();
+    textAlign(RIGHT, CENTER);
+    setFontStyle(700, 28);
+    text(`${(situationDurationMillis / 1000) - floor((millis() - startMillis) / 1000)}초`, width - 80, height - 50);
 
-    image(global.capture, 0, 0, w, h);
-    drawingContext.restore();
-    pop();
+    
+    // AI 사용
+    // 캠을 보여주는 곳
+    // 사각진 것이 아닌 둥근 사각형으로 출력하고 싶어 AI에게 부탁했습니다.
+    if (global.capture) { 
+      push();
+      imageMode(CENTER);
+      translate(width - (camWidth / 2) - 40, (camHeight / 2) + 40);
+      scale(-1, 1);
+
+      const w = camWidth;
+      const h = camHeight;
+      const r = 20;
+
+      drawingContext.save();
+      drawingContext.beginPath();
+      const ctx = drawingContext;
+      ctx.moveTo(-w / 2 + r, -h / 2);
+      ctx.lineTo(w / 2 - r, -h / 2);
+      ctx.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + r);
+      ctx.lineTo(w / 2, h / 2 - r);
+      ctx.quadraticCurveTo(w / 2, h / 2, w / 2 - r, h / 2);
+      ctx.lineTo(-w / 2 + r, h / 2);
+      ctx.quadraticCurveTo(-w / 2, h / 2, -w / 2, h / 2 - r);
+      ctx.lineTo(-w / 2, -h / 2 + r);
+      ctx.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2);
+      ctx.closePath();
+      drawingContext.clip();
+
+      image(global.capture, 0, 0, w, h);
+      drawingContext.restore();
+      pop();
+    }
+
+    if (millis() - startMillis > situationDurationMillis) {
+      moveToCollectEmotion();
+    }
+
+    drawStarMousePointer();
   }
 
-  if (millis() - startMillis > situationDurationMillis) {
-    moveToCollectEmotion();
+
+  function moveToCollectEmotion() {
+    const overallDominantResult = CaptureExpression(emotionSums, emotionCounts, emotions); //최종 감정 1개 반환
+    const dominantEmotionName = overallDominantResult.name;
+    const dominantEmotionScore = overallDominantResult.score;
+
+    const emotionArrayIndex = emotions.indexOf(dominantEmotionName);
+
+    if (emotionArrayIndex !== -1) {
+      global.dominantEmotionIndicesPerSituation[global.currentSituationIndex] = emotionArrayIndex;
+      console.log(`상황 ${global.currentSituationIndex} (${currentSituation.title}): 전체 주요 감정 '${dominantEmotionName}' (평균 점수 ${dominantEmotionScore.toFixed(2)}, 인덱스 ${emotionArrayIndex}) 저장됨`);
+    } else {
+      global.dominantEmotionIndicesPerSituation[global.currentSituationIndex] = null;
+      console.log(`상황 ${global.currentSituationIndex} (${currentSituation.title}): 전체 주요 감정을 결정할 수 없음 (저장 안됨)`);
+    }
+
+    isSituationInitialized = false;
+    startMillis = 0;               
+
+    global.currentSituationIndex++;
+
+    setState(State.CollectEmotion);
   }
-
-  drawStarMousePointer();
-}
-
-
-function moveToCollectEmotion() {
-  const overallDominantResult = CaptureExpression(emotionSums, emotionCounts, emotions); //최종 감정 1개 반환
-  const dominantEmotionName = overallDominantResult.name;
-  const dominantEmotionScore = overallDominantResult.score;
-
-  const emotionArrayIndex = emotions.indexOf(dominantEmotionName);
-
-  if (emotionArrayIndex !== -1) {
-    global.dominantEmotionIndicesPerSituation[global.currentSituationIndex] = emotionArrayIndex;
-    console.log(`상황 ${global.currentSituationIndex} (${currentSituation.title}): 전체 주요 감정 '${dominantEmotionName}' (평균 점수 ${dominantEmotionScore.toFixed(2)}, 인덱스 ${emotionArrayIndex}) 저장됨`);
-  } else {
-    global.dominantEmotionIndicesPerSituation[global.currentSituationIndex] = null;
-    console.log(`상황 ${global.currentSituationIndex} (${currentSituation.title}): 전체 주요 감정을 결정할 수 없음 (저장 안됨)`);
-  }
-
-  isSituationInitialized = false;
-  startMillis = 0;               
-
-  global.currentSituationIndex++;
-
-  setState(State.CollectEmotion);
-}
 
 
 // 주어진 표정 객체에서 가장 높은 점수를 가진 감정을 찾는 함수
