@@ -47,7 +47,7 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(1280, 720);
+  createCanvas(windowWidth, windowHeight);
   global.centerX = width / 2;
   global.centerY = height / 2;
 
@@ -119,6 +119,7 @@ function keyPressed() {
       fullscreen(!fullscreen());
   }
 }
+
 
 // ----------------------------------------------------------------
 // 5. 전역 스코프에 함수 등록
