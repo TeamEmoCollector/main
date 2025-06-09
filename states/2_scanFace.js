@@ -93,7 +93,7 @@ export function ScanFace() {
   } else {
     // ----- 상태 1: 모델 로드 전 (로딩 중) -----
     if (!isSetupInProgress) {
-      setupFaceApi();
+      LoadFaceModel();
       isSetupInProgress = true;
     }
     textAlign(CENTER, CENTER);
@@ -106,7 +106,7 @@ export function ScanFace() {
   drawStarMousePointer();
 }
 
-function setupFaceApi() {
+function LoadFaceModel() {
   global.capture = createCapture(VIDEO);
   global.capture.size(640, 480);
   global.capture.hide();

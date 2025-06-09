@@ -37,16 +37,16 @@ export function Situation() {
   textAlign(CENTER, CENTER);
 
   setFontStyle(700, 48);
-  text(`상황 ${global.currentSituationIndex + 1}/3`, global.centerX - 500, global.centerY - 300);
+  text(`상황 ${global.currentSituationIndex + 1}/3`, global.centerX - 700, global.centerY - 400);
 
   setFontStyle(500, 28);
-  text(currentSituation.title, global.centerX, global.centerY + 240);
+  text(currentSituation.title, global.centerX, global.centerY + 300);
 
   setFontStyle(500, 24);
-  text("이때, 느껴지는 당신의 감정을 표정으로 나타내주세요.", global.centerX, global.centerY + 280);
+  text("이때, 느껴지는 당신의 감정을 표정으로 나타내주세요.", global.centerX, global.centerY + 340);
 
   imageMode(CENTER);
-  image(currentSituation.img, global.centerX, global.centerY - 20, 600, 400);
+  image(currentSituation.img, global.centerX, global.centerY - 20, 800, 500);
 
 
   // 실시간 표정 분석 결과 표시 및 감정 데이터 누적
@@ -59,8 +59,8 @@ export function Situation() {
     setFontStyle(700, 28);
     text(
         `${currentDominantEmotion.name} (인식률: ${Math.round(currentDominantEmotion.score * 100)}%)`,
-        global.centerX + 330,
-        global.centerY - 100
+        global.centerX + 520,
+        global.centerY - 180
     );
     
     // 감정 데이터 누적
@@ -116,7 +116,6 @@ export function Situation() {
   drawStarMousePointer();
 }
 
-
 function drawFaceAlignedRect() {
   if (global.detections && global.detections.length > 0) {
     const box = global.detections[0].alignedRect._box;
@@ -136,7 +135,7 @@ function drawFaceAlignedRect() {
 }
 
 function moveToCollectEmotion() {
-  const overallDominantResult = calculateOverallDominantEmotion(emotionSums, emotionCounts, emotions);
+  const overallDominantResult = CaptureExpression(emotionSums, emotionCounts, emotions);
   const dominantEmotionName = overallDominantResult.name;
   const dominantEmotionScore = overallDominantResult.score;
 
@@ -175,7 +174,7 @@ function getDominantEmotion(expressions) {
 }
 
 // 누적된 데이터를 바탕으로 전체적인 주요 감정 결정 (neutral 보정)
-function calculateOverallDominantEmotion(sums, counts, emotionsArray, threshold = 0.05) {
+function CaptureExpression(sums, counts, emotionsArray, threshold = 0.05) {
   let highestNonNeutralAvgScore = 0;
   let dominantNonNeutralEmotion = null; // 가장 높은 비-neutral 감정 이름
   let nonNeutralDetected = false;      // 비-neutral 감정이 기준치 이상으로 감지되었는지 여부

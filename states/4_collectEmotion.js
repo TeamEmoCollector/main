@@ -9,7 +9,7 @@ let standardDurationMillis = 5000;
 
 let result;
 
-export function CollectEmotion() {
+export function RenderEmotionShard() {
   if (!isInitialized) {
     isInitialized = true;
     startMillis = millis(); // 시작 시간 초기화

@@ -6,7 +6,7 @@ import { global } from './globalStore.js';
 import { Home, StartContent } from './states/1_home.js';
 import { ScanFace} from './states/2_scanFace.js';
 import { Situation} from './states/3_situation.js';
-import { CollectEmotion} from './states/4_collectEmotion.js';
+import { RenderEmotionShard} from './states/4_collectEmotion.js';
 import { Report, pressedReport } from './states/5_report.js';
 import { Credits, pressedCredits } from './states/6_credits.js';
 
@@ -47,7 +47,7 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(1280, 720);
+  createCanvas(windowWidth, windowHeight);
   global.centerX = width / 2;
   global.centerY = height / 2;
 
@@ -92,7 +92,7 @@ function draw() {
     case State.Home: Home(); break; // 메인 화면
     case State.ScanFace: ScanFace(); break; // 얼굴 인식 화면
     case State.Situation: Situation(); break; // 상황 제시 화면
-    case State.CollectEmotion: CollectEmotion(); break; // 감정 조각 수집 화면
+    case State.CollectEmotion: RenderEmotionShard(); break; // 감정 조각 수집 화면
     case State.Report: Report(); break; // 리포트 화면
     case State.Credits: Credits(); break; // 크레딧 화면
   }
