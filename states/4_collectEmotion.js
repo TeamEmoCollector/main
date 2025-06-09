@@ -5,7 +5,7 @@ import { setFontStyle } from './utils.js';
 let isInitialized = false;
 
 let startMillis = 0; // 시작 시간
-let standardDurationMillis = 5000;
+let standardDurationMillis = 3000;
 
 let result;
 
@@ -28,7 +28,7 @@ export function RenderEmotionShard() {
 
   setFontStyle(700, 48);
   text(`${result} 감정 조각을 발견했어요.`, global.centerX, global.centerY);
-  text((5 - floor((millis() - startMillis)/1000)) + "초", global.centerX, global.centerY + 50);
+  text(( (standardDurationMillis / 1000)- floor((millis() - startMillis)/1000)) + "초", global.centerX, global.centerY + 50);
 
   if ( millis() - startMillis > standardDurationMillis) {
     moveToReport();
